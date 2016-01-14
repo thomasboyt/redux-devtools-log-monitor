@@ -52,6 +52,8 @@ export default class LogMonitor extends Component {
       initialScrollTop: PropTypes.number
     }),
 
+    blacklist: PropTypes.array,
+
     preserveScrollTop: PropTypes.bool,
     select: PropTypes.func.isRequired,
     theme: PropTypes.oneOfType([
@@ -67,7 +69,8 @@ export default class LogMonitor extends Component {
     theme: 'nicinabox',
     preserveScrollTop: true,
     expandActionRoot: true,
-    expandStateRoot: true
+    expandStateRoot: true,
+    blacklist: []
   };
 
   shouldComponentUpdate = shouldPureComponentUpdate;
@@ -171,11 +174,16 @@ export default class LogMonitor extends Component {
   render() {
     const elements = [];
     const theme = this.getTheme();
-    const { actionsById, skippedActionIds, stagedActionIds, computedStates, select } = this.props;
+    const { actionsById, skippedActionIds, stagedActionIds, computedStates, select, blacklist } = this.props;
 
     for (let i = 0; i < stagedActionIds.length; i++) {
       const actionId = stagedActionIds[i];
       const action = actionsById[actionId].action;
+
+      if (blacklist.indexOf(action.type) !== -1) {
+        continue;
+      }
+
       const { state, error } = computedStates[i];
       let previousState;
       if (i > 0) {
